@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excel File Host</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      color: #333;
+    }
+    header {
+      background: #4c8bf5;
+      color: white;
+      padding: 1em 2em;
+    }
+    .container {
+      max-width: 800px;
+      margin: 2em auto;
+      background: white;
+      padding: 1em 2em;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 1em;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background: #f0f0f0;
+    }
+    tr:nth-child(even) {
+      background: #fafafa;
+    }
+    a {
+      color: #4c8bf5;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Excel File Host</h1>
+  </header>
+  <div class="container">
+    <input type="text" id="search" placeholder="Search files...">
+    <table id="fileTable">
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Size</th>
+          <th>Last Modified</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <script>
+    let fileData = [];
+
+    function render(files) {
+      const tbody = document.querySelector('#fileTable tbody');
+      tbody.innerHTML = '';
+      if (!files.length) {
+        tbody.innerHTML = '<tr><td colspan="3">No Excel files found.</td></tr>';
+        return;
+      }
+      files.forEach(f => {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          `<td><a href="excel_files/${f.name}" target="_blank">${f.name}</a></td>` +
+          `<td>${(f.size / 1024).toFixed(1)} KB</td>` +
+          `<td>${new Date(f.mtime).toLocaleString()}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    fetch('file_list.json')
+      .then(resp => resp.json())
+      .then(files => {
+        fileData = files;
+        render(fileData);
+      })
+      .catch(err => console.error('Failed to load list:', err));
+
+    document.getElementById('search').addEventListener('input', e => {
+      const query = e.target.value.toLowerCase();
+      const filtered = fileData.filter(f => f.name.toLowerCase().includes(query));
+      render(filtered);
+    });
+  </script>
+</body>
+</html>
