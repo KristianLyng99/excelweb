@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Excel File Host</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    h1 { color: #333; }
+    table { border-collapse: collapse; width: 100%; max-width: 600px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>Excel Files</h1>
+  <table id="fileTable">
+    <thead>
+      <tr><th>File</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+<script>
+fetch('file_list.json')
+  .then(resp => resp.json())
+  .then(files => {
+    const tbody = document.querySelector('#fileTable tbody');
+    if (!files.length) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td>No Excel files found.</td>';
+      tbody.appendChild(tr);
+    } else {
+      files.forEach(f => {
+        const tr = document.createElement('tr');
+        const link = document.createElement('a');
+        link.href = 'excel_files/' + f;
+        link.textContent = f;
+        link.target = '_blank';
+        const td = document.createElement('td');
+        td.appendChild(link);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      });
+    }
+  })
+  .catch(err => console.error(err));
+</script>
+</body>
+</html>
